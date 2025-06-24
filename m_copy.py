@@ -164,36 +164,36 @@ if __name__ == "__main__" :
     ##This Section is for quantized model test section##
 
     #Store predictions and ground truth
-    all_preds = []
-    all_labels = []
-    
-    # No gradient needed during evaluation
-    with torch.no_grad():
-        for x, y in test_dataloader:
+    #all_preds = []
+    #all_labels = []
+    #
+    ## No gradient needed during evaluation
+    #with torch.no_grad():
+    #    for x, y in test_dataloader:
 
-            #print(f"{x.shape}\n")
-            #print(f"{y.shape}\n")
-            
-            # Quantized model must run on CPU
-            x = x.cpu()
-            y = y.cpu()
+    #        #print(f"{x.shape}\n")
+    #        #print(f"{y.shape}\n")
+    #        
+    #        # Quantized model must run on CPU
+    #        x = x.cpu()
+    #        y = y.cpu()
 
-            # Forward pass
-            output = model(x)
-            #print(f"{output.shape}\n")
-            # If model doesn't include LogSoftmax, apply it manually
-            # Or just use argmax directly if using CrossEntropyLoss
-            preds = output.argmax(dim=1)
-            #print(f"{preds.shape}\n")
+    #        # Forward pass
+    #        output = model(x)
+    #        #print(f"{output.shape}\n")
+    #        # If model doesn't include LogSoftmax, apply it manually
+    #        # Or just use argmax directly if using CrossEntropyLoss
+    #        preds = output.argmax(dim=1)
+    #        #print(f"{preds.shape}\n")
 
-            all_preds.extend(preds.tolist())
-            all_labels.extend(y.tolist())
-    
-    # Compute confusion matrix
-    cm = confusion_matrix(all_labels, all_preds)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-    disp.plot()
-    plt.title("Confusion Matrix (Quantized Model)")
-    plt.show()
+    #        all_preds.extend(preds.tolist())
+    #        all_labels.extend(y.tolist())
+    #
+    ## Compute confusion matrix
+    #cm = confusion_matrix(all_labels, all_preds)
+    #disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    #disp.plot()
+    #plt.title("Confusion Matrix (Quantized Model)")
+    #plt.show()
 
     ##------------------------------------------------------##
