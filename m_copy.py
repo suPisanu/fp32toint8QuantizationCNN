@@ -132,39 +132,10 @@ if __name__ == "__main__" :
 
     model_int8 = torch.ao.quantization.convert(model_fp32_prepared)
 
+    state_dict = torch.save(model_int8.state_dict(), "model_quantized_state_dict_11.pth")
+
     scripted_model = torch.jit.script(model_int8)
-    scripted_model.save("quantized_modelv8_final.pt")
-
-    ##This Section for export weight and bias for each layer both quantized model and non-quantized model##
-
-    for param in model_fp32.parameters():
-        print(param)
-    
-    print("--------------------------------break--------------------------------")
-
-    for name, module in model_int8.named_modules():
-        if isinstance(module, (nnq.Conv2d, nnq.Linear)):
-            print(f"Layer: {name}")
-            weight = module.weight()
-            
-            print("Raw quantized weights (int_repr):")
-            print(weight.int_repr())  # Raw int8 values
-    
-            print("QScheme:", weight.qscheme())
-    
-            if weight.qscheme() == torch.per_tensor_affine:
-                print("Scale:", weight.q_scale())
-                print("Zero Point:", weight.q_zero_point())
-            elif weight.qscheme() == torch.per_channel_affine:
-                print("Scales:", weight.q_per_channel_scales())
-                print("Zero Points:", weight.q_per_channel_zero_points())
-                print("Axis:", weight.q_per_channel_axis())
-            else:
-                print("Unknown or unsupported qscheme.")
-            print()
-
-    ##-----------------------------------------------------------------------------------------------------##
-
+    scripted_model.save("model_quantized_11.pt")
 
     ##This Section is for non-quantized model test section##
 
@@ -192,32 +163,37 @@ if __name__ == "__main__" :
 
     ##This Section is for quantized model test section##
 
-    ##Store predictions and ground truth
-    #all_preds = []
-    #all_labels = []
-    #
-    ## No gradient needed during evaluation
-    #with torch.no_grad():
-    #    for x, y in test_dataloader:
-    #        # Quantized model must run on CPU
-    #        x = x.cpu()
-    #        y = y.cpu()
-    #
-    #        # Forward pass
-    #        output = model(x)
-    #
-    #        # If model doesn't include LogSoftmax, apply it manually
-    #        # Or just use argmax directly if using CrossEntropyLoss
-    #        preds = output.argmax(dim=1)
-    #
-    #        all_preds.extend(preds.tolist())
-    #        all_labels.extend(y.tolist())
-    #
-    ## Compute confusion matrix
-    #cm = confusion_matrix(all_labels, all_preds)
-    #disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-    #disp.plot()
-    #plt.title("Confusion Matrix (Quantized Model)")
-    #plt.show()
+    #Store predictions and ground truth
+    all_preds = []
+    all_labels = []
+    
+    # No gradient needed during evaluation
+    with torch.no_grad():
+        for x, y in test_dataloader:
+
+            #print(f"{x.shape}\n")
+            #print(f"{y.shape}\n")
+            
+            # Quantized model must run on CPU
+            x = x.cpu()
+            y = y.cpu()
+
+            # Forward pass
+            output = model(x)
+            #print(f"{output.shape}\n")
+            # If model doesn't include LogSoftmax, apply it manually
+            # Or just use argmax directly if using CrossEntropyLoss
+            preds = output.argmax(dim=1)
+            #print(f"{preds.shape}\n")
+
+            all_preds.extend(preds.tolist())
+            all_labels.extend(y.tolist())
+    
+    # Compute confusion matrix
+    cm = confusion_matrix(all_labels, all_preds)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+    plt.title("Confusion Matrix (Quantized Model)")
+    plt.show()
 
     ##------------------------------------------------------##
