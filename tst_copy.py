@@ -29,16 +29,17 @@ torch.ao.quantization.prepare(model, inplace=True)
 model_quantized = torch.ao.quantization.convert(model)
 
 # Load weights
-model_quantized.load_state_dict(torch.load("model_quantized_state_dict.pth"))
+model_quantized.load_state_dict(torch.load("model_quantized_state_dict_11.pth"))
 
 #select target layers
 targeted_layer = {"conv1", "conv2"}
 
 #print weight of each selected layers
+
 with open ('weight_int8_export.c', 'w') as f :
-    #f.write("#include <stdint.h>\n") #Generate Header File
-  
+
     for name, module in model_quantized.named_modules():
+   
         if name in targeted_layer and isinstance(module, (nnq.Conv2d, nnq.Linear)):
             weight = module.weight()
             shape = weight.shape
@@ -66,3 +67,4 @@ with open ('weight_int8_export.c', 'w') as f :
             #else:
             #    f.write("Unknown or unsupported qscheme. \n")
             #print("\n")
+        
