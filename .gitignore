@@ -6,16 +6,6 @@ __pycache__/
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Binary model and weight files
-*.pt
-*.pth
-*.bin
-
-# Image and media files (optional)
-*.jpg
-*.png
-*.webp
-
 # VSCode and IDE settings (optional, if using VSCode)
 .vscode/
 *.code-workspace
@@ -31,7 +21,3 @@ Thumbs.db
 
 # Logs and debug
 *.log
-
-# Exported C header/source if generated automatically
-src/weight_int8_export.c
-src/weight_int8_export.h
