@@ -39,9 +39,9 @@ int main()
     CNNModel MyModel;
 
     // FIRST CONVOLUTIONAL LAYER
-    for (int i = 0; i < CONV1_out_Channel; i++)
+    for (int i = 0; i < CONV1_in_Channel; i++)
     {
-        for (int j = 0; j < CONV1_in_Channel; j++)
+        for (int j = 0; j < CONV1_out_Channel; j++)
         {
             for (int k = 0; k < CONV1_kernel_Width; k++)
             {
@@ -53,11 +53,12 @@ int main()
                 }
             }
         }
-    
+    }
+
     // SECOND CONVOLUTIONAL LAYER
-    for (int i = 0; i < CONV2_out_Channel; i++)
+    for (int i = 0; i < CONV2_in_Channel; i++)
     {
-        for (int j = 0; j < CONV2_in_Channel; j++)
+        for (int j = 0; j < CONV2_out_Channel; j++)
         {
             for (int k = 0; k < CONV2_kernel_Width; k++)
             {
@@ -71,17 +72,51 @@ int main()
         }
     }
 
-    //Save Struct as Binary File
-    //FILE *f = fopen("model_weight.bin", "wb");
-    //fwrite(&MyModel, sizeof(CNNModel), 1, f);
-    //fclose(f);
-    
-    //FILE *f = fopen("model_weight.bin", "rb");
-    //if (f == NULL)
+    // Save Struct as Binary File
+    // FILE *f = fopen("model_weight.bin", "wb");
+    // fwrite(&MyModel, sizeof(CNNModel), 1, f);
+    // fclose(f);
+
+    // FILE *f = fopen("model_weight.bin", "rb");
+    // if (f == NULL)
     //{
-    //    perror("Failed to open file.");
-    //    return 1;
+    //     perror("Failed to open file.");
+    //     return 1;
+    // }
+    // fread(&MyModel, sizeof(CNNModel), 1, f);
+    // fclose(f);
+
+    // FIRST CONVOLUTIONAL LAYER OUTPUTS
+    // for (int i = 0; i < CONV1_in_Channel; i++)
+    //{
+    //     for (int j = 0; j < CONV1_out_Channel; j++)
+    //     {
+    //         for (int k = 0; k < CONV1_kernel_Width; k++)
+    //         {
+    //             for (int m = 0; m < CONV1_kernel_Height; m++)
+    //             {
+    //                 // MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m] = conv1_weight[i][j][k][m];
+    //                 //  printf("%d, \n", conv1_weight[i][j][k][m]);
+    //                 printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
+    //             }
+    //         }
+    //     }
+    // }
+
+    // SECOND CONVOLUTIONAL LAYER OUTPUTS
+    // for (int i = 0; i < CONV2_in_Channel; i++)
+    //{
+    //    for (int j = 0; j < CONV2_out_Channel; j++)
+    //    {
+    //        for (int k = 0; k < CONV2_kernel_Width; k++)
+    //        {
+    //            for (int m = 0; m < CONV2_kernel_Height; m++)
+    //            {
+    //                // MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m] = conv2_weight[i][j][k][m];
+    //                //  printf("%d, \n", conv2_weight[i][j][k][m]);
+    //                printf("%d, \n", MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m]);
+    //            }
+    //        }
+    //    }
     //}
-    //fread(&MyModel, sizeof(CNNModel), 1, f);
-    //fclose(f);
-}
+} //

@@ -4,7 +4,7 @@ import torch.optim as optim
 import numpy as np
 import torch.nn.quantized as nnq
 
-from src.trainer import NeuralNetwork
+from trainer import NeuralNetwork
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from torch import nn
@@ -29,7 +29,7 @@ torch.ao.quantization.prepare(model, inplace=True)
 model_quantized = torch.ao.quantization.convert(model)
 
 # Load weights
-model_quantized.load_state_dict(torch.load("model_quantized_state_dict_11.pth"))
+model_quantized.load_state_dict(torch.load("C:\\WORK\\FPGA\\Litterally_Work\\fp32toint8QuantizationCNN_new\\model\\model_quantized_state_dict_11.pth"))
 
 #select target layers
 targeted_layer = {"conv1", "conv2"}
@@ -47,14 +47,21 @@ with open ('weight_int8_export.h', 'w') as f :
         if name in targeted_layer and isinstance(module, (nnq.Conv2d, nnq.Linear)):
             weight = module.weight()
             shape = weight.shape
+            print(shape)
+            
             weight_int8 = weight.int_repr().numpy()
+            
+            #Transpose from [32, 1, 3, 3] to [1, 32, 3, 3]
+            weight_int8 = np.transpose(weight_int8, (1, 0, 2, 3))
+            weight_int8_shape = weight_int8.shape
+            print(weight_int8_shape)
 
-            f.write(f"#define {name.upper()}_out_Channel {shape[0]}\n")
-            f.write(f"#define {name.upper()}_in_Channel {shape[1]}\n")
-            f.write(f"#define {name.upper()}_kernel_Width {shape[2]}\n")
-            f.write(f"#define {name.upper()}_kernel_Height {shape[3]}\n\n")
+            f.write(f"#define {name.upper()}_in_Channel {weight_int8_shape[0]}\n")
+            f.write(f"#define {name.upper()}_out_Channel {weight_int8_shape[1]}\n")
+            f.write(f"#define {name.upper()}_kernel_Width {weight_int8_shape[2]}\n")
+            f.write(f"#define {name.upper()}_kernel_Height {weight_int8_shape[3]}\n\n")
 
-            dim = "][".join(str(d) for d in shape)
+            dim = "][".join(str(d) for d in weight_int8_shape)
             f.write(f"int {name}_weight[{dim}] = \n")
             f.write(to_c_array(weight_int8))
             f.write(";\n\n")
