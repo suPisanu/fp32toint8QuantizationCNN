@@ -87,21 +87,21 @@ int main()
     // fclose(f);
 
     // FIRST CONVOLUTIONAL LAYER OUTPUTS
-    // for (int i = 0; i < CONV1_in_Channel; i++)
-    //{
-    //     for (int j = 0; j < CONV1_out_Channel; j++)
-    //     {
-    //         for (int k = 0; k < CONV1_kernel_Width; k++)
-    //         {
-    //             for (int m = 0; m < CONV1_kernel_Height; m++)
-    //             {
-    //                 // MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m] = conv1_weight[i][j][k][m];
-    //                 //  printf("%d, \n", conv1_weight[i][j][k][m]);
-    //                 printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
-    //             }
-    //         }
-    //     }
-    // }
+    for (int i = 0; i < CONV1_in_Channel; i++)
+    {
+        for (int j = 0; j < CONV1_out_Channel; j++)
+        {
+            for (int k = 0; k < CONV1_kernel_Width; k++)
+            {
+                for (int m = 0; m < CONV1_kernel_Height; m++)
+                {
+                    // MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m] = conv1_weight[i][j][k][m];
+                    //  printf("%d, \n", conv1_weight[i][j][k][m]);
+                    printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
+                }
+            }
+        }
+    }
 
     // SECOND CONVOLUTIONAL LAYER OUTPUTS
     // for (int i = 0; i < CONV2_in_Channel; i++)
