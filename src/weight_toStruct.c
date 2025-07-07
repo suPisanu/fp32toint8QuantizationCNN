@@ -5,33 +5,33 @@
 
 typedef struct
 {
-    int8_t Kernel[CONV1_kernel_Width][CONV1_kernel_Height];
-} ConvKernel;
+    int8_t Kernel[CONV_PE_REAL_0][CONV_PE_REAL_0];
+} conv_pe_pod_real;
 
 typedef struct
 {
-    ConvKernel in_Channel[CONV1_in_Channel];
-} Conv1Depth;
+    conv_pe_pod_real in_Channel[CONV_INPUT_CH_0];
+} conv_input_ch_0;
 
 typedef struct
 {
-    Conv1Depth out_Channel[CONV1_out_Channel];
-} Conv1Filters;
+    conv_input_ch_0 filter_Channel[CONV_FILTER_CH_0];
+} conv_filter_ch_0;
 
 typedef struct
 {
-    ConvKernel in_Channel[CONV2_in_Channel];
-} Conv2Depth;
+    conv_pe_pod_real in_Channel[CONV_FILTER_CH_1];
+} conv_input_ch_1;
 
 typedef struct
 {
-    Conv2Depth out_Channel[CONV2_out_Channel];
-} Conv2Filters;
+    conv_input_ch_1 filter_Channel[CONV_FILTER_CH_1];
+} conv_filter_ch_1;
 
 typedef struct
 {
-    Conv1Filters Conv1;
-    Conv2Filters Conv2;
+    conv_filter_ch_0 kernel_layer_0;
+    conv_filter_ch_1 kernel_layer_1;
 } CNNModel;
 
 int main()
@@ -39,15 +39,15 @@ int main()
     CNNModel MyModel;
 
     // FIRST CONVOLUTIONAL LAYER
-    for (int i = 0; i < CONV1_in_Channel; i++)
+    for (int i = 0; i < CONV_INPUT_CH_0; i++)
     {
-        for (int j = 0; j < CONV1_out_Channel; j++)
+        for (int j = 0; j < CONV_FILTER_CH_0; j++)
         {
-            for (int k = 0; k < CONV1_kernel_Width; k++)
+            for (int k = 0; k < CONV_PE_REAL_0; k++)
             {
-                for (int m = 0; m < CONV1_kernel_Height; m++)
+                for (int m = 0; m < CONV_PE_REAL_0; m++)
                 {
-                    MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m] = conv1_weight[i][j][k][m];
+                    MyModel.kernel_layer_0.filter_Channel[i].in_Channel[j].Kernel[k][m] = kernel_layer_0_weight[i][j][k][m];
                     // printf("%d, \n", conv1_weight[i][j][k][m]);
                     // printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
                 }
@@ -56,17 +56,17 @@ int main()
     }
 
     // SECOND CONVOLUTIONAL LAYER
-    for (int i = 0; i < CONV2_in_Channel; i++)
+    for (int i = 0; i < CONV_INPUT_CH_1; i++)
     {
-        for (int j = 0; j < CONV2_out_Channel; j++)
+        for (int j = 0; j < CONV_FILTER_CH_1; j++)
         {
-            for (int k = 0; k < CONV2_kernel_Width; k++)
+            for (int k = 0; k < CONV_PE_REAL_1; k++)
             {
-                for (int m = 0; m < CONV2_kernel_Height; m++)
+                for (int m = 0; m < CONV_PE_REAL_1; m++)
                 {
-                    MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m] = conv2_weight[i][j][k][m];
-                    // printf("%d, \n", conv2_weight[i][j][k][m]);
-                    // printf("%d, \n", MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m]);
+                    MyModel.kernel_layer_1.filter_Channel[i].in_Channel[j].Kernel[k][m] = kernel_layer_1_weight[i][j][k][m];
+                    // printf("%d, \n", conv1_weight[i][j][k][m]);
+                    // printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
                 }
             }
         }
@@ -87,36 +87,36 @@ int main()
     // fclose(f);
 
     // FIRST CONVOLUTIONAL LAYER OUTPUTS
-    for (int i = 0; i < CONV1_in_Channel; i++)
-    {
-        for (int j = 0; j < CONV1_out_Channel; j++)
-        {
-            for (int k = 0; k < CONV1_kernel_Width; k++)
-            {
-                for (int m = 0; m < CONV1_kernel_Height; m++)
-                {
-                    // MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m] = conv1_weight[i][j][k][m];
-                    //  printf("%d, \n", conv1_weight[i][j][k][m]);
-                    printf("%d, \n", MyModel.Conv1.out_Channel[i].in_Channel[j].Kernel[k][m]);
-                }
-            }
-        }
-    }
-
-    // SECOND CONVOLUTIONAL LAYER OUTPUTS
-    // for (int i = 0; i < CONV2_in_Channel; i++)
+    // for (int i = 0; i < CONV_INPUT_CH_0; i++)
     //{
-    //    for (int j = 0; j < CONV2_out_Channel; j++)
+    //    for (int j = 0; j < CONV_FILTER_CH_0; j++)
     //    {
-    //        for (int k = 0; k < CONV2_kernel_Width; k++)
+    //        for (int k = 0; k < CONV_PE_REAL_0; k++)
     //        {
-    //            for (int m = 0; m < CONV2_kernel_Height; m++)
+    //            for (int m = 0; m < CONV_PE_REAL_0; m++)
     //            {
-    //                // MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m] = conv2_weight[i][j][k][m];
-    //                //  printf("%d, \n", conv2_weight[i][j][k][m]);
-    //                printf("%d, \n", MyModel.Conv2.out_Channel[i].in_Channel[j].Kernel[k][m]);
+    //                // MyModel.kernel_layer_0.filter_Channel[i].in_Channel[j].Kernel[k][m] = kernel_layer_0_weight[i][j][k][m];
+    //                //  printf("%d, \n", conv1_weight[i][j][k][m]);
+    //                printf("%d, \n", MyModel.kernel_layer_0.filter_Channel[i].in_Channel[j].Kernel[k][m]);
     //            }
     //        }
     //    }
     //}
-} //
+
+    // SECOND CONVOLUTIONAL LAYER OUTPUTS
+    for (int i = 0; i < CONV_INPUT_CH_1; i++)
+    {
+        for (int j = 0; j < CONV_FILTER_CH_1; j++)
+        {
+            for (int k = 0; k < CONV_PE_REAL_1; k++)
+            {
+                for (int m = 0; m < CONV_PE_REAL_1; m++)
+                {
+                    // MyModel.kernel_layer_1.filter_Channel[i].in_Channel[j].Kernel[k][m] = kernel_layer_1_weight[i][j][k][m];
+                    //  printf("%d, \n", conv1_weight[i][j][k][m]);
+                    printf("%d, \n", MyModel.kernel_layer_1.filter_Channel[i].in_Channel[j].Kernel[k][m]);
+                }
+            }
+        }
+    }
+}

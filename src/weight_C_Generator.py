@@ -32,57 +32,61 @@ model_quantized = torch.ao.quantization.convert(model)
 model_quantized.load_state_dict(torch.load("C:\\WORK\\FPGA\\Litterally_Work\\fp32toint8QuantizationCNN_new\\model\\model_quantized_state_dict_11.pth"))
 
 #select target layers
-targeted_layer = {"conv1", "conv2"}
-
-#print weight of each selected layers
+targeted_layer = ["conv1", "conv2"]
 
 header_guard = "__WEIGHT_INT8_EXPORT_H__"
 
-with open ('weight_int8_export.h', 'w') as f :
+layer_mapping = {old : f'kernel_layer_{i}' for i, old in enumerate(targeted_layer)}
+macro_lines = []
+weight_lines = []
 
+c = 0
+for name, module in model_quantized.named_modules():
+    if name in targeted_layer and isinstance(module, (nnq.Conv2d, nnq.Linear)):
+        weight = module.weight()
+        shape = weight.shape
+        
+        weight_int8 = weight.int_repr().numpy()
+        #Transpose from [32, 1, 3, 3] to [1, 32, 3, 3]
+        weight_int8 = np.transpose(weight_int8, (1, 0, 2, 3))
+        weight_int8_shape = weight_int8.shape
+
+        mapped_name = layer_mapping[name]
+        #macro_lines.append(f"#define {mapped_name.upper()}_INPUT_CH_{c} {weight_int8_shape[0]}\n")
+        #macro_lines.append(f"#define {mapped_name.upper()}_FILTER_CH_{c} {weight_int8_shape[1]}\n")
+        #macro_lines.append(f"#define {mapped_name.upper()}_WIDTH_{c} {weight_int8_shape[2]}\n")
+        #macro_lines.append(f"#define {mapped_name.upper()}_HEIGHT_{c} {weight_int8_shape[3]}\n\n")
+
+        macro_lines.append(f"#define CONV_INPUT_CH_{c} {weight_int8_shape[0]}\n")
+        macro_lines.append(f"#define CONV_FILTER_CH_{c} {weight_int8_shape[1]}\n")
+        macro_lines.append(f"#define CONV_PE_REAL_{c} {weight_int8_shape[2]}\n\n")   
+
+        dim = "][".join(str(d) for d in weight_int8_shape)
+        weight_c_arr = (to_c_array(weight_int8))
+        weight_lines.append(f"int {mapped_name}_weight[{dim}] = \n{weight_c_arr};\n\n")
+        c += 1
+
+with open ('weight_int8_export.h', 'w') as f :
     f.write(f"#ifndef {header_guard}\n")
     f.write(f"#define {header_guard}\n\n")
-    for name, module in model_quantized.named_modules():
-   
-        if name in targeted_layer and isinstance(module, (nnq.Conv2d, nnq.Linear)):
-            weight = module.weight()
-            shape = weight.shape
-            print(shape)
-            
-            weight_int8 = weight.int_repr().numpy()
-            
-            #Transpose from [32, 1, 3, 3] to [1, 32, 3, 3]
-            weight_int8 = np.transpose(weight_int8, (1, 0, 2, 3))
-            weight_int8_shape = weight_int8.shape
-            print(weight_int8_shape)
 
-            f.write(f"#define {name.upper()}_in_Channel {weight_int8_shape[0]}\n")
-            f.write(f"#define {name.upper()}_out_Channel {weight_int8_shape[1]}\n")
-            f.write(f"#define {name.upper()}_kernel_Width {weight_int8_shape[2]}\n")
-            f.write(f"#define {name.upper()}_kernel_Height {weight_int8_shape[3]}\n\n")
-
-            dim = "][".join(str(d) for d in weight_int8_shape)
-            f.write(f"int {name}_weight[{dim}] = \n")
-            f.write(to_c_array(weight_int8))
-            f.write(";\n\n")
+    f.writelines(macro_lines)
+    f.writelines(weight_lines)
 
     f.write(f"#endif // {header_guard}\n")
 
-            ##THIS CODE BELOW HERE IS TO PUT EVERYTHING INTO TEXT FILE...##
-
-            #f.write("Raw quantized weights (int_repr): \n")
-            #f.write(f"{weight.int_repr()} \n")  # Raw int8 values
-
-            #f.write(f"QScheme: {weight.qscheme()} \n")
-
-            #if weight.qscheme() == torch.per_tensor_affine:
-            #    f.write(f"Scale: {weight.q_scale()} \n")
-            #    f.write(f"Zero Point: {weight.q_zero_point()} \n")
-            #elif weight.qscheme() == torch.per_channel_affine:
-            #    f.write(f"Scales: {weight.q_per_channel_scales()} \n")
-            #    f.write(f"Zero Points: {weight.q_per_channel_zero_points()} \n")
-            #    f.write(f"Axis: {weight.q_per_channel_axis()} \n")
-            #else:
-            #    f.write("Unknown or unsupported qscheme. \n")
-            #print("\n")
+    ##THIS CODE BELOW HERE IS TO PUT EVERYTHING INTO TEXT FILE...#
+    #f.write("Raw quantized weights (int_repr): \n")
+    #f.write(f"{weight.int_repr()} \n")  # Raw int8 value
+    #f.write(f"QScheme: {weight.qscheme()} \n"
+    #if weight.qscheme() == torch.per_tensor_affine:
+    #    f.write(f"Scale: {weight.q_scale()} \n")
+    #    f.write(f"Zero Point: {weight.q_zero_point()} \n")
+    #elif weight.qscheme() == torch.per_channel_affine:
+    #    f.write(f"Scales: {weight.q_per_channel_scales()} \n")
+    #    f.write(f"Zero Points: {weight.q_per_channel_zero_points()} \n")
+    #    f.write(f"Axis: {weight.q_per_channel_axis()} \n")
+    #else:
+    #    f.write("Unknown or unsupported qscheme. \n")
+    #print("\n")
         
