@@ -21,3 +21,6 @@ Thumbs.db
 
 # Logs and debug
 *.log
+
+# header file
+*.h
